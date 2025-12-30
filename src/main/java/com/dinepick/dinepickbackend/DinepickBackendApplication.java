@@ -9,6 +9,4 @@ public class DinepickBackendApplication {
     public static void main(String[] args) {
         SpringApplication.run(DinepickBackendApplication.class, args);
     }
-    //수정1
-    //테스트수정2
 }

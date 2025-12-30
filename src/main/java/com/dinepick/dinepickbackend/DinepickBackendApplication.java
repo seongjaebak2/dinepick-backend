@@ -10,4 +10,5 @@ public class DinepickBackendApplication {
         SpringApplication.run(DinepickBackendApplication.class, args);
     }
     //수정1
+    //테스트수정2
 }

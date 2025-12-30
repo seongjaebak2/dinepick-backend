@@ -17,7 +17,7 @@ public class Member {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String password;
 
     @Column(nullable = false)
@@ -26,6 +26,14 @@ public class Member {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
+
+    // 🔥 회원가입용 생성자
+    public Member(String email, String password) {
+        this.email = email;
+        this.password = password;
+        this.name = "USER"; // 또는 프론트에서 받게 바꿔도 됨
+        this.role = Role.ROLE_USER;
+    }
 
     public Member(String email, String password, String name, Role role) {
         this.email = email;

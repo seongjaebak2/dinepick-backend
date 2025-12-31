@@ -7,28 +7,26 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/restaurants")
 @RequiredArgsConstructor
 public class RestaurantController {
     private final RestaurantService restaurantService;
 
-//    레스토랑 목록 + 검색
+    //    레스토랑 목록 + 검색
     @GetMapping
     public Page<RestaurantResponse> getRestaurants(
             @RequestParam(required = false) String keyword,
             Pageable pageable
-    ){
+    ) {
         return restaurantService.findRestaurants(keyword, pageable);
     }
 
-//    레스토랑 상세
+    //    레스토랑 상세
     @GetMapping("/{restaurantId}")
     public RestaurantResponse getRestaurant(
             @PathVariable Long restaurantId
-    ){
+    ) {
         return restaurantService.findById(restaurantId);
     }
 }

@@ -5,6 +5,7 @@ import com.dinepick.dinepickbackend.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -16,15 +17,26 @@ public class DataInit implements CommandLineRunner {
     private final MemberRepository memberRepository;
     private final RestaurantRepository restaurantRepository;
     private final ReservationRepository reservationRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void run(String... args) {
+        if (memberRepository.findByEmail("admin@dinepick.com").isEmpty()) {
+            Member admin = new Member(
+                    "admin@dinepick.com",
+                    passwordEncoder.encode("admin1234"),
+                    "관리자",
+                    Role.ROLE_ADMIN
+            );
+            memberRepository.save(admin);
+        }
+
         if (memberRepository.existsByEmail("test@test.com")) {
             return;
         }
         Member member = new Member(
                 "test@test.com",
-                "1234",
+                passwordEncoder.encode("1234"),
                 "홍길동",
                 Role.ROLE_USER
         );

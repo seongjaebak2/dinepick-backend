@@ -22,7 +22,8 @@ public class AuthController {
     ) {
         authService.signup(
                 req.get("email"),
-                req.get("password")
+                req.get("password"),
+                req.get("name")
         );
         return ResponseEntity.ok("회원가입 성공");
     }

@@ -16,7 +16,7 @@ public class JwtTokenProvider {
             "dinepick-secret-key-dinepick-secret-key";
     private final long EXPIRE_TIME = 1000 * 60 * 60;
 
-    private final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+    private final byte[] key = SECRET_KEY.getBytes();
 
     public String createToken(String email, Role role) {
         Date now = new Date();

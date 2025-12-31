@@ -1,6 +1,7 @@
 package com.dinepick.dinepickbackend.auth;
 
 import com.dinepick.dinepickbackend.entity.Member;
+import com.dinepick.dinepickbackend.entity.Role;
 import com.dinepick.dinepickbackend.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,14 +15,16 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
 
-    public void signup(String email, String password) {
+    public void signup(String email, String password, String name) {
         if (memberRepository.findByEmail(email).isPresent()) {
             throw new RuntimeException("이미 가입된 이메일");
         }
 
         Member member = new Member(
-                email,
-                passwordEncoder.encode(password)
+                email,  //email
+                passwordEncoder.encode(password), //password
+                name,          // name
+                Role.ROLE_USER      // role
         );
         memberRepository.save(member);
     }

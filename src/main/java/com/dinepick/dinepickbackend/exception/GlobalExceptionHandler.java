@@ -20,11 +20,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(new ErrorResponse(400, "BAD_REQUEST", e.getMessage()));
     }
 
-//    500 - 나머지 모든 예외(안전망)
+    //    500 - 나머지 모든 예외(안전망)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(
             Exception e
-    ){
+    ) {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorResponse(
@@ -33,7 +33,6 @@ public class GlobalExceptionHandler {
                         "서버 오류가 발생했습니다."
                 ));
     }
-
 
 
 }

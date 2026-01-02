@@ -1,4 +1,4 @@
-package com.dinepick.dinepickbackend.auth;
+package com.dinepick.dinepickbackend.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

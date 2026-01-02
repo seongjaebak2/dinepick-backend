@@ -1,5 +1,6 @@
-package com.dinepick.dinepickbackend.auth;
+package com.dinepick.dinepickbackend.service;
 
+import com.dinepick.dinepickbackend.security.JwtTokenProvider;
 import com.dinepick.dinepickbackend.entity.Member;
 import com.dinepick.dinepickbackend.entity.Role;
 import com.dinepick.dinepickbackend.repository.MemberRepository;

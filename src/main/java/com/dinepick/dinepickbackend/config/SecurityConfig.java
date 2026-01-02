@@ -1,7 +1,7 @@
-package com.dinepick.dinepickbackend.security;
+package com.dinepick.dinepickbackend.config;
 
-import com.dinepick.dinepickbackend.auth.JwtAuthenticationFilter;
-import com.dinepick.dinepickbackend.auth.JwtTokenProvider;
+import com.dinepick.dinepickbackend.security.JwtAuthenticationFilter;
+import com.dinepick.dinepickbackend.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

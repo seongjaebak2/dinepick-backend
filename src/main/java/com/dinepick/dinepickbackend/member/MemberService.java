@@ -18,7 +18,5 @@ public class MemberService {
 
         return MemberResponse.from(member);
     }
-
-    public void promoteToAdmin(Long id) {}
 }
 

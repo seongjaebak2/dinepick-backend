@@ -19,32 +19,59 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
-@EnableMethodSecurity(prePostEnabled = true)
+/**
+ * Spring Security 전체 설정 클래스
+ * - JWT 기반 인증 방식 적용
+ * - 세션 미사용 (STATELESS)
+ * - 인증/인가 규칙 정의
+ */
+@EnableMethodSecurity(prePostEnabled = true) // @PreAuthorize 사용 가능
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    // JWT 토큰 생성/검증 Provider
     private final JwtTokenProvider jwtTokenProvider;
 
+    /**
+     * 비밀번호 암호화 Bean
+     * - 회원가입 시 비밀번호 암호화
+     * - 로그인 시 비밀번호 비교
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Security Filter Chain 설정
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
+                // CSRF 비활성화 (JWT 방식이므로 필요 없음)
                 .csrf(csrf -> csrf.disable())
-                .cors(cors->cors.configurationSource(corsConfigurationSource()))
+
+                // CORS 설정 적용
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+                // 세션 사용 안 함 (JWT는 Stateless)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
+
+                // URL 접근 권한 설정
                 .authorizeHttpRequests(auth -> auth
+                        // 회원가입 / 로그인 / 식당 조회는 인증 없이 허용
                         .requestMatchers("/api/auth/**", "/api/restaurants/**").permitAll()
+
+                        // 나머지 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
+
+                // JWT 인증 필터를 UsernamePasswordAuthenticationFilter 앞에 등록
                 .addFilterBefore(
                         new JwtAuthenticationFilter(jwtTokenProvider),
                         UsernamePasswordAuthenticationFilter.class
@@ -53,18 +80,31 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * CORS 설정
+     * - 프론트엔드(React)와의 통신 허용
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource(){
         CorsConfiguration configuration = new CorsConfiguration();
 
+        // 프론트엔드 주소 허용
         configuration.setAllowedOrigins(List.of("http://localhost:5173"));
-        configuration.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
+
+        // 허용 HTTP 메서드
+        configuration.setAllowedMethods(
+                List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")
+        );
+
+        // 모든 헤더 허용
         configuration.setAllowedHeaders(List.of("*"));
+
+        // 인증 정보 포함 허용 (JWT 헤더)
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**",configuration);
+        source.registerCorsConfiguration("/**", configuration);
 
         return source;
     }

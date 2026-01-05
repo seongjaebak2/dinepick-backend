@@ -1,4 +1,4 @@
-package com.dinepick.dinepickbackend.auth;
+package com.dinepick.dinepickbackend.security;
 
 import com.dinepick.dinepickbackend.entity.Role;
 import io.jsonwebtoken.Jwts;

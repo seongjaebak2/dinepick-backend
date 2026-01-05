@@ -1,7 +1,7 @@
-package com.dinepick.dinepickbackend.member;
+package com.dinepick.dinepickbackend.service;
 
 import com.dinepick.dinepickbackend.entity.Member;
-import com.dinepick.dinepickbackend.member.dto.MemberResponse;
+import com.dinepick.dinepickbackend.dto.MemberResponse;
 import com.dinepick.dinepickbackend.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

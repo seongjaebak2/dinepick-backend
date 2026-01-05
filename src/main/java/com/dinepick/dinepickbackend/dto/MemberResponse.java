@@ -1,4 +1,4 @@
-package com.dinepick.dinepickbackend.member.dto;
+package com.dinepick.dinepickbackend.dto;
 
 import com.dinepick.dinepickbackend.entity.Member;
 import lombok.AllArgsConstructor;

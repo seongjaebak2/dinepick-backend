@@ -1,5 +1,6 @@
-package com.dinepick.dinepickbackend.auth;
+package com.dinepick.dinepickbackend.controller;
 
+import com.dinepick.dinepickbackend.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

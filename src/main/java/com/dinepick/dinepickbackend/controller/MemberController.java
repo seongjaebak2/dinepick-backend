@@ -1,6 +1,7 @@
-package com.dinepick.dinepickbackend.member;
+package com.dinepick.dinepickbackend.controller;
 
-import com.dinepick.dinepickbackend.member.dto.MemberResponse;
+import com.dinepick.dinepickbackend.dto.MemberResponse;
+import com.dinepick.dinepickbackend.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;

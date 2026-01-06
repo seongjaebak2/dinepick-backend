@@ -1,6 +1,7 @@
 package com.dinepick.dinepickbackend.controller;
 
 import com.dinepick.dinepickbackend.dto.RestaurantResponse;
+import com.dinepick.dinepickbackend.entity.Category;
 import com.dinepick.dinepickbackend.service.RestaurantService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,9 +18,10 @@ public class RestaurantController {
     @GetMapping
     public Page<RestaurantResponse> getRestaurants(
             @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Category category,
             Pageable pageable
     ) {
-        return restaurantService.findRestaurants(keyword, pageable);
+        return restaurantService.findRestaurants(keyword, category, pageable);
     }
 
     //    레스토랑 상세

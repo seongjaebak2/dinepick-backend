@@ -14,6 +14,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(404, "NOT_FOUND", e.getMessage()));
     }
 
+    // auth, member 관련 예외
+    @ExceptionHandler(BaseException.class)
+    public ResponseEntity<ErrorResponse> handleBaseException(BaseException e) {
+        return ResponseEntity
+                .status(e.getStatus())
+                .body(new ErrorResponse(
+                        e.getStatus().value(),
+                        e.getErrorCode(),
+                        e.getMessage()
+                ));
+    }
+
     //    400 - 잘못된 요청
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException e) {
@@ -33,6 +45,4 @@ public class GlobalExceptionHandler {
                         "서버 오류가 발생했습니다."
                 ));
     }
-
-
 }

@@ -46,7 +46,8 @@ public class DataInit implements CommandLineRunner {
                 "스시하루",
                 "서울 강남구",
                 "신선한 스시 전문점",
-                6
+                6,
+                Category.JAPANESE
         );
         restaurantRepository.save(restaurant);
 

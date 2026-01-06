@@ -19,7 +19,7 @@ public class MemberController {
      * 내 정보 조회 (로그인한 사용자)
      */
     @GetMapping("/me")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("isAuthenticated()")
     public MemberResponse getMyInfo() {
         return memberService.getMyInfo();
     }

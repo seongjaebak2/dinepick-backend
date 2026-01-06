@@ -24,11 +24,16 @@ public class Restaurant {
     @Column(nullable = false)
     private int maxPeoplePerReservation;
 
-    public Restaurant(String name, String address, String description, int maxPeoplePerReservation) {
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Category category;
+
+    public Restaurant(String name, String address, String description, int maxPeoplePerReservation, Category category) {
         this.name = name;
         this.address = address;
         this.description = description;
         this.maxPeoplePerReservation = maxPeoplePerReservation;
+        this.category = category;
     }
 
 

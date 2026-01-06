@@ -1,10 +1,12 @@
 package com.dinepick.dinepickbackend.service;
 
+import com.dinepick.dinepickbackend.exception.auth.AuthException;
 import com.dinepick.dinepickbackend.security.JwtTokenProvider;
 import com.dinepick.dinepickbackend.entity.Member;
 import com.dinepick.dinepickbackend.entity.Role;
 import com.dinepick.dinepickbackend.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +38,11 @@ public class AuthService {
 
         // 이미 가입된 이메일인지 중복 체크
         if (memberRepository.findByEmail(email).isPresent()) {
-            throw new RuntimeException("이미 가입된 이메일");
+            throw new AuthException(
+                    HttpStatus.BAD_REQUEST,
+                    "DUPLICATE_EMAIL",
+                    "이미 가입된 이메일입니다."
+            );
         }
 
         // 회원 엔티티 생성
@@ -62,11 +68,19 @@ public class AuthService {
 
         // 이메일로 회원 조회 (없으면 예외 발생)
         Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("회원 없음"));
+                .orElseThrow(() -> new AuthException(
+                        HttpStatus.NOT_FOUND,
+                        "MEMBER_NOT_FOUND",
+                        "존재하지 않는 회원입니다."
+                ));
 
         // 입력한 비밀번호와 저장된 암호화 비밀번호 비교
         if (!passwordEncoder.matches(password, member.getPassword())) {
-            throw new RuntimeException("비밀번호 불일치");
+            throw new AuthException(
+                    HttpStatus.UNAUTHORIZED,
+                    "INVALID_PASSWORD",
+                    "비밀번호가 일치하지 않습니다."
+            );
         }
 
         // 로그인 성공 시 JWT 토큰 생성 및 반환

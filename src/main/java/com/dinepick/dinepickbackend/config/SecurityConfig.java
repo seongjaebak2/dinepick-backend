@@ -1,5 +1,7 @@
 package com.dinepick.dinepickbackend.config;
 
+import com.dinepick.dinepickbackend.security.JwtAccessDeniedHandler;
+import com.dinepick.dinepickbackend.security.JwtAuthenticationEntryPoint;
 import com.dinepick.dinepickbackend.security.JwtAuthenticationFilter;
 import com.dinepick.dinepickbackend.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +27,7 @@ import java.util.List;
  * - 세션 미사용 (STATELESS)
  * - 인증/인가 규칙 정의
  */
-@EnableMethodSecurity(prePostEnabled = true) // @PreAuthorize 사용 가능
+@EnableMethodSecurity // @PreAuthorize 사용 가능
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -33,6 +35,8 @@ public class SecurityConfig {
 
     // JWT 토큰 생성/검증 Provider
     private final JwtTokenProvider jwtTokenProvider;
+    private final JwtAuthenticationEntryPoint authenticationEntryPoint;
+    private final JwtAccessDeniedHandler accessDeniedHandler;
 
     /**
      * 비밀번호 암호화 Bean
@@ -53,24 +57,25 @@ public class SecurityConfig {
         http
                 // CSRF 비활성화 (JWT 방식이므로 필요 없음)
                 .csrf(csrf -> csrf.disable())
-
                 // CORS 설정 적용
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
                 // 세션 사용 안 함 (JWT는 Stateless)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-
+                //예외 설정
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler)
+                )
                 // URL 접근 권한 설정
                 .authorizeHttpRequests(auth -> auth
                         // 회원가입 / 로그인 / 식당 조회는 인증 없이 허용
-                        .requestMatchers("/api/auth/**", "/api/restaurants/**").permitAll()
+                        .requestMatchers("/api/auth/login","/api/auth/signup","/api/restaurants/**").permitAll()
 
                         // 나머지 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
-
                 // JWT 인증 필터를 UsernamePasswordAuthenticationFilter 앞에 등록
                 .addFilterBefore(
                         new JwtAuthenticationFilter(jwtTokenProvider),

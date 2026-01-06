@@ -2,16 +2,21 @@ package com.dinepick.dinepickbackend.service;
 
 import com.dinepick.dinepickbackend.entity.Member;
 import com.dinepick.dinepickbackend.dto.MemberResponse;
+import com.dinepick.dinepickbackend.exception.auth.UnauthenticatedException;
+import com.dinepick.dinepickbackend.exception.member.MemberNotFoundException;
 import com.dinepick.dinepickbackend.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MemberService {
 
     private final MemberRepository memberRepository;
@@ -23,10 +28,15 @@ public class MemberService {
         Authentication authentication =
                 SecurityContextHolder.getContext().getAuthentication();
 
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication.getPrincipal().equals("anonymousUser")) {
+            throw new UnauthenticatedException();
+        }
+
         String email = authentication.getName();
 
         Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("회원 없음"));
+                .orElseThrow(MemberNotFoundException::new);
 
         return MemberResponse.from(member);
     }
@@ -34,6 +44,7 @@ public class MemberService {
     /**
      * 전체 회원 조회 (ADMIN)
      */
+    @PreAuthorize("hasRole('ADMIN')")
     public List<MemberResponse> findAll() {
         return memberRepository.findAll()
                 .stream()
@@ -44,17 +55,22 @@ public class MemberService {
     /**
      * 회원 단건 조회 (ADMIN)
      */
+    @PreAuthorize("hasRole('ADMIN')")
     public MemberResponse findById(Long id) {
-        Member member = memberRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("회원 없음"));
-        return MemberResponse.from(member);
+        return memberRepository.findById(id)
+                .map(MemberResponse::from)
+                .orElseThrow(MemberNotFoundException::new);
     }
 
     /**
      * 회원 삭제 (ADMIN)
      */
+    @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public void delete(Long id) {
-        memberRepository.deleteById(id);
+        Member member = memberRepository.findById(id)
+                .orElseThrow(MemberNotFoundException::new);
+        memberRepository.delete(member);
     }
 }
 

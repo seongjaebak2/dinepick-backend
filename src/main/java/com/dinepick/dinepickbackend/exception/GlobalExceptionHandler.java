@@ -26,6 +26,18 @@ public class GlobalExceptionHandler {
                 ));
     }
 
+    @ExceptionHandler(ReservationNotFoundException.class)
+    public ResponseEntity<String> handleNotFound(RuntimeException e){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(e.getMessage());
+    }
+
+    @ExceptionHandler(UnauthorizedReservationAccessException.class)
+    public ResponseEntity<String> handleUnauthorized(RuntimeException e){
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(e.getMessage());
+    }
+
     //    400 - 잘못된 요청
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException e) {

@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -37,16 +38,19 @@ public class ReservationController {
 
     @PostMapping
     public ResponseEntity<ReservationResponse> createReservation(
-            @AuthenticationPrincipal String email,
             @RequestBody ReservationCreateRequest request
     ) {
+        String email = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
         ReservationResponse response =
                 reservationService.createReservation(email, request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{reservationId}")
     public void cancelReservation(
             @PathVariable Long reservationId
     ) {

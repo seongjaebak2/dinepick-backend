@@ -5,12 +5,16 @@ import com.dinepick.dinepickbackend.dto.ReservationResponse;
 import com.dinepick.dinepickbackend.entity.Member;
 import com.dinepick.dinepickbackend.entity.Reservation;
 import com.dinepick.dinepickbackend.entity.Restaurant;
+import com.dinepick.dinepickbackend.entity.Role;
+import com.dinepick.dinepickbackend.exception.ReservationNotFoundException;
+import com.dinepick.dinepickbackend.exception.UnauthorizedReservationAccessException;
 import com.dinepick.dinepickbackend.repository.MemberRepository;
 import com.dinepick.dinepickbackend.repository.ReservationRepository;
 import com.dinepick.dinepickbackend.repository.RestaurantRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -42,4 +46,30 @@ public class ReservationService {
         Reservation saved = reservationRepository.save(reservation);
         return ReservationResponse.from(saved);
     }
+
+    public void cancelReservation(Long reservationId){
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(()->
+                        new ReservationNotFoundException(reservationId)
+                );
+
+//        현재 로그인 사용자 이메일
+        String email = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(()->
+                        new IllegalArgumentException("사용자를 찾을 수 없습니다.")
+                );
+
+//        본인 및 관리자 계정인지 검증
+        if (!reservation.getMember().getId().equals(member.getId()) && !member.getRole().equals(Role.ROLE_ADMIN)){
+            throw new UnauthorizedReservationAccessException();
+        }
+
+        reservationRepository.delete(reservation);
+    }
+
+
 }

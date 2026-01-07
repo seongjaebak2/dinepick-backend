@@ -1,6 +1,11 @@
 package com.dinepick.dinepickbackend.service;
 
+import com.dinepick.dinepickbackend.dto.TokenResponse;
+import com.dinepick.dinepickbackend.entity.MemberStatus;
+import com.dinepick.dinepickbackend.entity.RefreshToken;
 import com.dinepick.dinepickbackend.exception.auth.AuthException;
+import com.dinepick.dinepickbackend.exception.member.WithdrawnMemberException;
+import com.dinepick.dinepickbackend.repository.RefreshTokenRepository;
 import com.dinepick.dinepickbackend.security.JwtTokenProvider;
 import com.dinepick.dinepickbackend.entity.Member;
 import com.dinepick.dinepickbackend.entity.Role;
@@ -9,6 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import java.time.LocalDateTime;
 
 /**
  * 인증(Auth) 관련 비즈니스 로직을 처리하는 Service
@@ -27,6 +35,8 @@ public class AuthService {
 
     // 비밀번호 암호화를 위한 PasswordEncoder
     private final PasswordEncoder passwordEncoder;
+
+    private final RefreshTokenRepository refreshTokenRepository;
 
     /**
      * 회원가입 처리
@@ -59,13 +69,9 @@ public class AuthService {
     }
 
     /**
-     * 로그인 처리
-     * @param email  로그인 이메일
-     * @param password  로그인 비밀번호
-     * @return JWT Access Token
+     * 로그인 (Access + Refresh 발급)
      */
-    public String login(String email, String password) {
-
+    public TokenResponse login(String email, String password) {
         // 이메일로 회원 조회 (없으면 예외 발생)
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new AuthException(
@@ -73,7 +79,6 @@ public class AuthService {
                         "MEMBER_NOT_FOUND",
                         "존재하지 않는 회원입니다."
                 ));
-
         // 입력한 비밀번호와 저장된 암호화 비밀번호 비교
         if (!passwordEncoder.matches(password, member.getPassword())) {
             throw new AuthException(
@@ -82,11 +87,73 @@ public class AuthService {
                     "비밀번호가 일치하지 않습니다."
             );
         }
+        //회원탈퇴 여부
+        if (member.isDeleted() || member.getStatus() == MemberStatus.WITHDRAWN) {
+            throw new WithdrawnMemberException();
+        }
+        // 기존 Refresh Token 제거 (단일 로그인 정책)
+        refreshTokenRepository.deleteByMemberId(member.getId());
 
-        // 로그인 성공 시 JWT 토큰 생성 및 반환
-        return jwtTokenProvider.createToken(
-                member.getEmail(), // 토큰 subject
-                member.getRole()   // 권한 정보
+        String accessToken =
+                jwtTokenProvider.createAccessToken(member.getEmail(), member.getRole());
+
+        String refreshToken =
+                jwtTokenProvider.createRefreshToken(member.getEmail());
+
+        refreshTokenRepository.save(
+                new RefreshToken(
+                        refreshToken,
+                        member,
+                        LocalDateTime.now().plusDays(7)
+                )
+        );
+
+        return new TokenResponse(accessToken, refreshToken);
+    }
+
+    /**
+     * Access Token 재발급
+     */
+    public String reissueAccessToken(String refreshToken) {
+
+        RefreshToken token = refreshTokenRepository.findByToken(refreshToken)
+                .orElseThrow(() -> new AuthException(
+                        HttpStatus.UNAUTHORIZED,
+                        "INVALID_REFRESH_TOKEN",
+                        "유효하지 않은 Refresh Token입니다."
+                ));
+
+        if (token.isExpired()) {
+            refreshTokenRepository.delete(token);
+            throw new AuthException(
+                    HttpStatus.UNAUTHORIZED,
+                    "EXPIRED_REFRESH_TOKEN",
+                    "Refresh Token이 만료되었습니다."
+            );
+        }
+
+        Member member = token.getMember();
+
+        // ✅ 탈퇴 / 정지 회원 재발급 차단
+        if (member.isDeleted() || member.getStatus() == MemberStatus.WITHDRAWN) {
+            refreshTokenRepository.delete(token);
+            throw new WithdrawnMemberException();
+        }
+
+        return jwtTokenProvider.createAccessToken(
+                member.getEmail(),
+                member.getRole()
         );
     }
+
+    /**
+     * 로그아웃
+     */
+    public void logout(@RequestBody String refreshToken) {
+        if (refreshToken == null || refreshToken.isBlank()) return;
+
+        refreshTokenRepository.findByToken(refreshToken)
+                .ifPresent(refreshTokenRepository::delete);
+    }
 }
+

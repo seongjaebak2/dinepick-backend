@@ -43,11 +43,29 @@ public class MemberController {
     }
 
     /**
-     * 회원 삭제 (관리자 전용)
+     * 회원 탈퇴 (본인)
      */
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    public void withdraw() {
+        memberService.withdraw();
+    }
+
+    /**
+     * 회원 복구 (ADMIN)
+     */
+    @PostMapping("/{id}/restore")
     @PreAuthorize("hasRole('ADMIN')")
-    public void delete(@PathVariable Long id) {
-        memberService.delete(id);
+    public void restore(@PathVariable Long id) {
+        memberService.restoreMember(id);
+    }
+
+    /**
+     * 탈퇴 회원 목록 조회 (관리자)
+     */
+    @GetMapping("/withdrawn")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<MemberResponse> findWithdrawnMembers() {
+        return memberService.findWithdrawnMembers();
     }
 }

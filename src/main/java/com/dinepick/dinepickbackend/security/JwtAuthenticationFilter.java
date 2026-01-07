@@ -1,5 +1,7 @@
 package com.dinepick.dinepickbackend.security;
 
+import com.dinepick.dinepickbackend.entity.Member;
+import com.dinepick.dinepickbackend.repository.MemberRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,6 +28,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     // JWT 토큰 생성/검증을 담당하는 Provider
     private final JwtTokenProvider jwtTokenProvider;
+    private final MemberRepository memberRepository;
 
     /**
      * HTTP 요청이 들어올 때마다 한 번씩 실행되는 필터
@@ -47,11 +50,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = authHeader.substring(7);
 
             try {
-                // JWT 토큰에서 사용자 정보 추출
+                // 1️⃣ 토큰 유효성 검증
+                if (!jwtTokenProvider.validateToken(token)) {
+                    throw new RuntimeException();
+                }
+
+                // 2️⃣ JWT 토큰에서 사용자 정보 추출
                 String email = jwtTokenProvider.getEmail(token);
                 String role = jwtTokenProvider.getRole(token);
 
-                /*
+                // 3️⃣ DB 조회 + 탈퇴 여부 확인
+                Member member = memberRepository.findByEmail(email)
+                        .orElseThrow();
+
+                if (member.isDeleted()) {
+                    // 🔥 탈퇴 회원 → 인증 거부
+                    SecurityContextHolder.clearContext();
+                    filterChain.doFilter(request, response);
+                    return;
+                }
+
+                /* 4️⃣
                  * Spring Security 인증 객체 생성
                  * - principal: 사용자 식별 정보 (email)
                  * - credentials: null (JWT 방식이므로 비밀번호 사용 안 함)

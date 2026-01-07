@@ -4,6 +4,7 @@ import com.dinepick.dinepickbackend.entity.Member;
 import com.dinepick.dinepickbackend.dto.MemberResponse;
 import com.dinepick.dinepickbackend.exception.auth.UnauthenticatedException;
 import com.dinepick.dinepickbackend.exception.member.MemberNotFoundException;
+import com.dinepick.dinepickbackend.exception.member.WithdrawnMemberException;
 import com.dinepick.dinepickbackend.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -62,15 +64,46 @@ public class MemberService {
                 .orElseThrow(MemberNotFoundException::new);
     }
 
-    /**
-     * 회원 삭제 (ADMIN)
-     */
+    //회원탈퇴
+    @Transactional
+    public void withdraw() {
+        Member member = getCurrentMember();
+        member.withdraw();
+    }
+
+    //회원복구
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
-    public void delete(Long id) {
+    public void restoreMember(Long id) {
         Member member = memberRepository.findById(id)
                 .orElseThrow(MemberNotFoundException::new);
-        memberRepository.delete(member);
+        if (!member.isDeleted()) {
+            throw new IllegalStateException("이미 활성 회원입니다.");
+        }
+        if (member.getDeletedAt().isBefore(LocalDateTime.now().minusDays(7))) {
+            throw new IllegalStateException("복구 가능 기간이 지났습니다.");
+        }
+        member.restore();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<MemberResponse> findWithdrawnMembers() {
+
+        return memberRepository.findAllByDeletedTrue()
+                .stream()
+                .map(MemberResponse::from)
+                .toList();
+    }
+
+    // === 공통 메서드 ===
+    private Member getCurrentMember() {
+        String email = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+
+        return memberRepository.findByEmailAndDeletedFalse(email)
+                .orElseThrow(WithdrawnMemberException::new);
     }
 }
 

@@ -16,6 +16,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -24,6 +27,28 @@ public class ReservationService {
     private final RestaurantRepository restaurantRepository;
     private final MemberRepository memberRepository;
 
+    //  예약 가능 여부 확인
+    public boolean isAvailable(
+            Long restaurantId,
+            LocalDate date,
+            LocalTime time,
+            int peopleCount
+    ) {
+        Restaurant restaurant = restaurantRepository.findById(restaurantId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("레스토랑을 찾을 수 없습니다.")
+                );
+        if (peopleCount > restaurant.getMaxPeoplePerReservation()) {
+            return false;
+        }
+
+        return !reservationRepository
+                .existsByRestaurantIdAndReservationDateAndReservationTime(
+                        restaurantId, date, time
+                );
+    }
+
+    //  예약 생성
     public ReservationResponse createReservation(String email, ReservationCreateRequest request) {
         Member member = memberRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
 
@@ -47,24 +72,25 @@ public class ReservationService {
         return ReservationResponse.from(saved);
     }
 
-    public void cancelReservation(Long reservationId){
+    //  예약 취소
+    public void cancelReservation(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(()->
+                .orElseThrow(() ->
                         new ReservationNotFoundException(reservationId)
                 );
 
-//        현재 로그인 사용자 이메일
+        //        현재 로그인 사용자 이메일
         String email = SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getName();
 
         Member member = memberRepository.findByEmail(email)
-                .orElseThrow(()->
+                .orElseThrow(() ->
                         new IllegalArgumentException("사용자를 찾을 수 없습니다.")
                 );
 
-//        본인 및 관리자 계정인지 검증
-        if (!reservation.getMember().getId().equals(member.getId()) && !member.getRole().equals(Role.ROLE_ADMIN)){
+        //        본인 및 관리자 계정인지 검증
+        if (!reservation.getMember().getId().equals(member.getId()) && !member.getRole().equals(Role.ROLE_ADMIN)) {
             throw new UnauthorizedReservationAccessException();
         }
 

@@ -1,5 +1,6 @@
 package com.dinepick.dinepickbackend.service;
 
+import com.dinepick.dinepickbackend.dto.MyReservationResponse;
 import com.dinepick.dinepickbackend.dto.ReservationCreateRequest;
 import com.dinepick.dinepickbackend.dto.ReservationResponse;
 import com.dinepick.dinepickbackend.dto.ReservationUpdateRequest;
@@ -13,6 +14,8 @@ import com.dinepick.dinepickbackend.repository.MemberRepository;
 import com.dinepick.dinepickbackend.repository.ReservationRepository;
 import com.dinepick.dinepickbackend.repository.RestaurantRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,6 +76,18 @@ public class ReservationService {
         return ReservationResponse.from(saved);
     }
 
+    // 본인 예약 조회
+    @Transactional(readOnly = true)
+    public Page<MyReservationResponse> getMyReservations(Pageable pageable) {
+        String email = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+        return reservationRepository
+                .findByMemberEmailOrderByCreatedAtDesc(email, pageable)
+                .map(MyReservationResponse::from);
+    }
+
     //  예약 수정
     public ReservationResponse updateReservation(
             Long reservationId,
@@ -105,7 +120,7 @@ public class ReservationService {
         }
 
         // 중복 예약 체크 (본인 예약 제외)
-        boolean exists= reservationRepository
+        boolean exists = reservationRepository
                 .existsByRestaurantIdAndReservationDateAndReservationTimeAndIdNot(
                         restaurant.getId(),
                         request.getReservationDate(),
@@ -113,7 +128,7 @@ public class ReservationService {
                         reservationId
                 );
 
-        if(exists){
+        if (exists) {
             throw new IllegalArgumentException("이미 예약된 시간입니다.");
         }
 

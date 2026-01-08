@@ -1,10 +1,13 @@
 package com.dinepick.dinepickbackend.controller;
 
+import com.dinepick.dinepickbackend.dto.MyReservationResponse;
 import com.dinepick.dinepickbackend.dto.ReservationCreateRequest;
 import com.dinepick.dinepickbackend.dto.ReservationResponse;
 import com.dinepick.dinepickbackend.dto.ReservationUpdateRequest;
 import com.dinepick.dinepickbackend.service.ReservationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,6 +37,13 @@ public class ReservationController {
                 "available", available,
                 "message", available ? "예약 가능합니다." : "예약이 불가능합니다."
         );
+    }
+
+    @GetMapping("/my")
+    public Page<MyReservationResponse> myReservation(
+            Pageable pageable
+    ) {
+        return reservationService.getMyReservations(pageable);
     }
 
     @PostMapping

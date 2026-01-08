@@ -2,17 +2,12 @@ package com.dinepick.dinepickbackend.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
-    //    404 - 리소스 없음
-    @ExceptionHandler(RestaurantNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleRestaurantNotFound(RestaurantNotFoundException e) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(404, "NOT_FOUND", e.getMessage()));
-    }
 
     // auth, member 관련 예외
     @ExceptionHandler(BaseException.class)
@@ -24,6 +19,21 @@ public class GlobalExceptionHandler {
                         e.getErrorCode(),
                         e.getMessage()
                 ));
+    }
+
+    // @Valid 데이터 검증 실패 시 발생하는 예외 처리
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException e) {
+        String errorMessage = e.getBindingResult().getAllErrors().get(0).getDefaultMessage();
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(400, "VALIDATION_ERROR", errorMessage));
+    }
+
+    //    404 - 리소스 없음
+    @ExceptionHandler(RestaurantNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleRestaurantNotFound(RestaurantNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(404, "NOT_FOUND", e.getMessage()));
     }
 
     @ExceptionHandler(ReservationNotFoundException.class)

@@ -3,6 +3,7 @@ package com.dinepick.dinepickbackend.controller;
 import com.dinepick.dinepickbackend.dto.*;
 import com.dinepick.dinepickbackend.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +30,7 @@ public class AuthController {
                 request.getPassword(),
                 request.getName()
         );
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     //로그인 API (Access + Refresh Token 발급)
@@ -45,12 +46,12 @@ public class AuthController {
 
     //Access token 재발급
     @PostMapping("/reissue")
-    public AccessTokenResponse reissue(
+    public ResponseEntity<AccessTokenResponse> reissue(
             @RequestBody RefreshTokenRequest request
     ) {
         String accessToken =
                 authService.reissueAccessToken(request.getRefreshToken());
-        return new AccessTokenResponse(accessToken);
+        return ResponseEntity.ok(new AccessTokenResponse(accessToken));
     }
 
     //로그아웃

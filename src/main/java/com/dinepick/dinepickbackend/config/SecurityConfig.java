@@ -1,10 +1,8 @@
 package com.dinepick.dinepickbackend.config;
 
-import com.dinepick.dinepickbackend.repository.MemberRepository;
 import com.dinepick.dinepickbackend.security.JwtAccessDeniedHandler;
 import com.dinepick.dinepickbackend.security.JwtAuthenticationEntryPoint;
 import com.dinepick.dinepickbackend.security.JwtAuthenticationFilter;
-import com.dinepick.dinepickbackend.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,10 +33,9 @@ import java.util.List;
 public class SecurityConfig {
 
     // JWT 토큰 생성/검증 Provider
-    private final JwtTokenProvider jwtTokenProvider;
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
     private final JwtAccessDeniedHandler accessDeniedHandler;
-    private final MemberRepository memberRepository;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     /**
      * 비밀번호 암호화 Bean
@@ -74,16 +71,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 회원가입 / 로그인 / 식당 조회는 인증 없이 허용
                         .requestMatchers("/api/auth/**","/api/restaurants/**").permitAll()
-
                         // 나머지 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
                 // JWT 인증 필터를 UsernamePasswordAuthenticationFilter 앞에 등록
                 .addFilterBefore(
-                        new JwtAuthenticationFilter(jwtTokenProvider,memberRepository),
+                        jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class
                 );
-
         return http.build();
     }
 
@@ -97,18 +92,14 @@ public class SecurityConfig {
 
         // 프론트엔드 주소 허용
         configuration.setAllowedOrigins(List.of("http://localhost:5173"));
-
         // 허용 HTTP 메서드
         configuration.setAllowedMethods(
                 List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")
         );
-
         // 모든 헤더 허용
         configuration.setAllowedHeaders(List.of("*"));
-
         // 인증 정보 포함 허용 (JWT 헤더)
         configuration.setAllowCredentials(true);
-
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

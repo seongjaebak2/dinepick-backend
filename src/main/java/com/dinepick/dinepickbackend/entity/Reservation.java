@@ -51,7 +51,7 @@ public class Reservation {
     private LocalDateTime createdAt;
 
     @PrePersist
-    public void prePersist(){
+    public void prePersist() {
         this.createdAt = LocalDateTime.now();
     }
 
@@ -64,6 +64,16 @@ public class Reservation {
     ) {
         this.member = member;
         this.restaurant = restaurant;
+        this.reservationDate = reservationDate;
+        this.reservationTime = reservationTime;
+        this.peopleCount = peopleCount;
+    }
+
+    public void update(
+            LocalDate reservationDate,
+            LocalTime reservationTime,
+            int peopleCount
+    ) {
         this.reservationDate = reservationDate;
         this.reservationTime = reservationTime;
         this.peopleCount = peopleCount;

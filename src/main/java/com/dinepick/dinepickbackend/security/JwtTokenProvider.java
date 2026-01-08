@@ -5,6 +5,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -18,20 +19,17 @@ import java.util.Date;
  */
 @Component
 public class JwtTokenProvider {
-    /**
-     * JWT 서명에 사용되는 비밀키
-     * ⚠ 실제 서비스에서는 application.yml 또는 환경변수로 관리해야 함
-     */
+    //JWT 서명에 사용되는 비밀키
     private final Key key;
     /**
-     * 토큰 만료 시간 (1시간)
+     * 토큰 만료 시간
      * 1000ms * 60초 * 30분
      */
     private static final long ACCESS_EXPIRE = 1000 * 60 * 30; // 30분
     private static final long REFRESH_EXPIRE = 1000L * 60 * 60 * 24 * 7; // 7일
 
-    public JwtTokenProvider() {
-        String secret = "dinepick-secret-key-dinepick-secret-key";
+    public JwtTokenProvider(@Value("${jwt.secret:dinepick-default-secret-key-must-be-long-enough}") String secret) {
+        // 비밀키가 너무 짧으면 HS256 실행 시 오류가 나므로 충분히 길게 설정해야 합니다.
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
     }
 
@@ -75,15 +73,13 @@ public class JwtTokenProvider {
                 .parseClaimsJws(token)
                 .getBody();
     }
-    /**
-     * JWT 토큰에서 이메일(email) 추출
-     */
+
+    //JWT 토큰에서 이메일(email) 추출
     public String getEmail(String token) {
         return getClaims(token).getSubject();
     }
-    /**
-     * JWT 토큰에서 사용자 권한(role) 추출
-     */
+
+    //JWT 토큰에서 사용자 권한(role) 추출
     public String getRole(String token) {
         return getClaims(token).get("role", String.class);
     }

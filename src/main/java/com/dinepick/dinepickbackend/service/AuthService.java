@@ -140,10 +140,20 @@ public class AuthService {
      */
     @Transactional
     public void logout(String refreshToken) {
-        if (refreshToken == null || refreshToken.isBlank()) return;
+        // 1. 토큰 유효성 검증 (서명 및 만료 체크)
+        if (refreshToken == null || !jwtTokenProvider.validateToken(refreshToken)) {
+            throw new AuthException(HttpStatus.BAD_REQUEST, "INVALID_TOKEN", "유효하지 않은 토큰입니다.");
+        }
 
-        refreshTokenRepository.findByToken(refreshToken)
-                .ifPresent(refreshTokenRepository::delete);
+        // 2. DB 존재 여부 확인 후 삭제
+        RefreshToken token = refreshTokenRepository.findByToken(refreshToken)
+                .orElseThrow(() -> new AuthException(
+                        HttpStatus.NOT_FOUND,
+                        "TOKEN_NOT_FOUND",
+                        "이미 로그아웃되었거나 존재하지 않는 토큰입니다."
+                ));
+
+        refreshTokenRepository.delete(token);
     }
 }
 

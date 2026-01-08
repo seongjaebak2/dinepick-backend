@@ -45,6 +45,8 @@ public class DataInit implements CommandLineRunner {
         Restaurant restaurant = new Restaurant(
                 "스시하루",
                 "서울 강남구",
+                37.4979,
+                127.0276,
                 "신선한 스시 전문점",
                 6,
                 Category.JAPANESE

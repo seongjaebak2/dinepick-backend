@@ -46,4 +46,22 @@ public class RestaurantService {
 
         return RestaurantResponse.from(restaurant);
     }
+
+    //  위치 기반 검색
+    public Page<RestaurantResponse> findNearby(
+            double lat,
+            double lng,
+            double radius,
+            String keyword,
+            Category category,
+            Pageable pageable
+    ) {
+        if (keyword != null && keyword.isBlank()) {
+            keyword = null;
+        }
+
+        return restaurantRepository
+                .findNearbyWithDistance(lat, lng, radius, keyword, category, pageable)
+                ;
+    }
 }

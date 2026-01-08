@@ -18,6 +18,10 @@ public class Restaurant {
     @Column(nullable = false)
     private String address;
 
+    //  위치 정보
+    private Double latitude;
+    private Double longitude;
+
     @Column(length = 1000)
     private String description;
 
@@ -28,9 +32,11 @@ public class Restaurant {
     @Column(nullable = false)
     private Category category;
 
-    public Restaurant(String name, String address, String description, int maxPeoplePerReservation, Category category) {
+    public Restaurant(String name, String address, Double latitude, Double longitude, String description, int maxPeoplePerReservation, Category category) {
         this.name = name;
         this.address = address;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.description = description;
         this.maxPeoplePerReservation = maxPeoplePerReservation;
         this.category = category;

@@ -20,4 +20,11 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             LocalDate reservationDate,
             LocalTime reservationTime
     );
+
+    boolean existsByRestaurantIdAndReservationDateAndReservationTimeAndIdNot(
+            Long restaurantId,
+            LocalDate reservationDate,
+            LocalTime reservationTime,
+            Long id
+    );
 }

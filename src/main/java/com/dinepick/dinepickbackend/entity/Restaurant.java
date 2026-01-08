@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor
@@ -32,7 +35,16 @@ public class Restaurant {
     @Column(nullable = false)
     private Category category;
 
-    public Restaurant(String name, String address, Double latitude, Double longitude, String description, int maxPeoplePerReservation, Category category) {
+    @OneToMany(mappedBy = "restaurant",cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RestaurantImage> images = new ArrayList<>();
+
+    public Restaurant(String name,
+                      String address,
+                      Double latitude,
+                      Double longitude,
+                      String description,
+                      int maxPeoplePerReservation,
+                      Category category) {
         this.name = name;
         this.address = address;
         this.latitude = latitude;
@@ -42,5 +54,9 @@ public class Restaurant {
         this.category = category;
     }
 
+    public void addImage(RestaurantImage image){
+        images.add(image);
+        image.setRestaurant(this);
+    }
 
 }

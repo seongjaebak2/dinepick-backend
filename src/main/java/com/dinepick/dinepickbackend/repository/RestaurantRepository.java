@@ -20,34 +20,42 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
             Pageable pageable
     );
 
+    boolean existsByNameAndAddress(String name, String address);
+
     @Query("""
-    select new com.dinepick.dinepickbackend.dto.RestaurantResponse(
-        r.id,
-        r.name,
-        r.address,
-        r.category,
-        (6371.0 * acos(
-            cos(radians(:lat)) * cos(radians(r.latitude)) *
-            cos(radians(r.longitude) - radians(:lng)) +
-            sin(radians(:lat)) * sin(radians(r.latitude))
-        ))
+select new com.dinepick.dinepickbackend.dto.RestaurantResponse(
+    r.id,
+    r.name,
+    r.address,
+    r.category,
+    (6371.0 * acos(
+        cos(radians(:lat)) * cos(radians(r.latitude)) *
+        cos(radians(r.longitude) - radians(:lng)) +
+        sin(radians(:lat)) * sin(radians(r.latitude))
+    )),
+    (
+        select ri.imageUrl
+        from RestaurantImage ri
+        where ri.restaurant = r
+          and ri.isThumbnail = true
     )
-    from Restaurant r
-    where r.latitude IS NOT NULL
-      and r.longitude IS NOT NULL
-      and (6371.0 * acos(
-            cos(radians(:lat)) * cos(radians(r.latitude)) *
-            cos(radians(r.longitude) - radians(:lng)) +
-            sin(radians(:lat)) * sin(radians(r.latitude))
-      )) <= :radius
-      and (:category IS NULL OR r.category = :category)
-      and (:keyword IS NULL OR r.name LIKE %:keyword%)
-    order by
-      (6371.0 * acos(
-            cos(radians(:lat)) * cos(radians(r.latitude)) *
-            cos(radians(r.longitude) - radians(:lng)) +
-            sin(radians(:lat)) * sin(radians(r.latitude))
-      )) asc
+)
+from Restaurant r
+where r.latitude IS NOT NULL
+  and r.longitude IS NOT NULL
+  and (6371.0 * acos(
+        cos(radians(:lat)) * cos(radians(r.latitude)) *
+        cos(radians(r.longitude) - radians(:lng)) +
+        sin(radians(:lat)) * sin(radians(r.latitude))
+  )) <= :radius
+  and (:category IS NULL OR r.category = :category)
+  and (:keyword IS NULL OR r.name LIKE %:keyword%)
+order by
+  (6371.0 * acos(
+        cos(radians(:lat)) * cos(radians(r.latitude)) *
+        cos(radians(r.longitude) - radians(:lng)) +
+        sin(radians(:lat)) * sin(radians(r.latitude))
+  )) asc
 """)
     Page<RestaurantResponse> findNearbyWithDistance(
             @Param("lat") double lat,

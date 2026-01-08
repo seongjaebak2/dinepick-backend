@@ -38,13 +38,9 @@ public class RestaurantService {
     }
 
     //    레스토랑 상세
-    public RestaurantResponse findById(Long restaurantId) {
-        Restaurant restaurant = restaurantRepository.findById(restaurantId)
-                .orElseThrow(() ->
-                        new RestaurantNotFoundException(restaurantId)
-                );
-
-        return RestaurantResponse.from(restaurant);
+    public Restaurant findEntityById(Long restaurantId) {
+        return restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new RestaurantNotFoundException(restaurantId));
     }
 
     //  위치 기반 검색

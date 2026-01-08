@@ -13,6 +13,7 @@ public class MemberResponse {
     private String name;
     private String role;
 
+
     public static MemberResponse from(Member member) {
         return new MemberResponse(
                 member.getId(),

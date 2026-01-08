@@ -1,5 +1,6 @@
 package com.dinepick.dinepickbackend.config;
 
+import com.dinepick.dinepickbackend.repository.MemberRepository;
 import com.dinepick.dinepickbackend.security.JwtAccessDeniedHandler;
 import com.dinepick.dinepickbackend.security.JwtAuthenticationEntryPoint;
 import com.dinepick.dinepickbackend.security.JwtAuthenticationFilter;
@@ -37,6 +38,7 @@ public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
     private final JwtAccessDeniedHandler accessDeniedHandler;
+    private final MemberRepository memberRepository;
 
     /**
      * 비밀번호 암호화 Bean
@@ -71,14 +73,14 @@ public class SecurityConfig {
                 // URL 접근 권한 설정
                 .authorizeHttpRequests(auth -> auth
                         // 회원가입 / 로그인 / 식당 조회는 인증 없이 허용
-                        .requestMatchers("/api/auth/login","/api/auth/signup","/api/restaurants/**").permitAll()
+                        .requestMatchers("/api/auth/**","/api/restaurants/**").permitAll()
 
                         // 나머지 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
                 // JWT 인증 필터를 UsernamePasswordAuthenticationFilter 앞에 등록
                 .addFilterBefore(
-                        new JwtAuthenticationFilter(jwtTokenProvider),
+                        new JwtAuthenticationFilter(jwtTokenProvider,memberRepository),
                         UsernamePasswordAuthenticationFilter.class
                 );
 

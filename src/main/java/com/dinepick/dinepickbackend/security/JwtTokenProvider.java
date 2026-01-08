@@ -25,14 +25,29 @@ public class JwtTokenProvider {
     private final Key key;
     /**
      * 토큰 만료 시간 (1시간)
-     * 1000ms * 60초 * 60분
+     * 1000ms * 60초 * 30분
      */
-    private static final long EXPIRE_TIME = 1000 * 60 * 60;
+    private static final long ACCESS_EXPIRE = 1000 * 60 * 30; // 30분
+    private static final long REFRESH_EXPIRE = 1000L * 60 * 60 * 24 * 7; // 7일
 
     public JwtTokenProvider() {
         String secret = "dinepick-secret-key-dinepick-secret-key";
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
     }
+
+    public String createAccessToken(String email, Role role) {
+        return createToken(email, role, ACCESS_EXPIRE);
+    }
+
+    public String createRefreshToken(String email) {
+        return Jwts.builder()
+                .setSubject(email)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_EXPIRE))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
     /**
      * JWT Access Token 생성
      *
@@ -40,20 +55,12 @@ public class JwtTokenProvider {
      * @param role  사용자 권한 (ROLE_USER, ROLE_ADMIN)
      * @return 생성된 JWT 토큰 문자열
      */
-    public String createToken(String email, Role role) {
-        Date now = new Date();
-        Date expire = new Date(now.getTime() + EXPIRE_TIME);
-
+    private String createToken(String email, Role role, long expireTime) {
         return Jwts.builder()
-                // 토큰 주제 (사용자 식별자)
                 .setSubject(email)
-                // 사용자 권한 정보 저장
                 .claim("role", role.name())
-                // 토큰 발급 시간
-                .setIssuedAt(now)
-                // 토큰 만료 시간
-                .setExpiration(expire)
-                // HS256 알고리즘 + 비밀키로 서명
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expireTime))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -79,5 +86,17 @@ public class JwtTokenProvider {
      */
     public String getRole(String token) {
         return getClaims(token).get("role", String.class);
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

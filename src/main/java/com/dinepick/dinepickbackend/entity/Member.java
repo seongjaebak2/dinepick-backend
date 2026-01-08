@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @NoArgsConstructor
@@ -26,6 +28,14 @@ public class Member {
     @Column(nullable = false)
     private Role role;
 
+    //탈퇴 여부
+    private boolean deleted = false;
+    //탈퇴 시각
+    private LocalDateTime deletedAt;
+    //계정상태
+    @Enumerated(EnumType.STRING)
+    private MemberStatus status = MemberStatus.ACTIVE;
+
     public Member(String email, String password, String name, Role role) {
         this.email = email;
         this.password = password;
@@ -33,4 +43,15 @@ public class Member {
         this.role = role;
     }
 
+    public void withdraw() {
+        this.deleted = true;
+        this.status = MemberStatus.WITHDRAWN;
+        this.deletedAt = LocalDateTime.now();
+    }
+
+    public void restore() {
+        this.deleted = false;
+        this.status = MemberStatus.ACTIVE;
+        this.deletedAt = null;
+    }
 }

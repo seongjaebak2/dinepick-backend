@@ -2,6 +2,7 @@ package com.dinepick.dinepickbackend.controller;
 
 import com.dinepick.dinepickbackend.dto.*;
 import com.dinepick.dinepickbackend.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ public class AuthController {
     //회원가입 API
     @PostMapping("/signup")
     public ResponseEntity<Void> signup(
-            @RequestBody SignupRequest request
+            @Valid @RequestBody SignupRequest request
     ) {
         authService.signup(
                 request.getEmail(),
@@ -36,7 +37,7 @@ public class AuthController {
     //로그인 API (Access + Refresh Token 발급)
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(
-            @RequestBody LoginRequest request
+            @Valid @RequestBody LoginRequest request
     ) {
         TokenResponse tokenResponse =
                 authService.login(request.getEmail(), request.getPassword());
@@ -47,7 +48,7 @@ public class AuthController {
     //Access token 재발급
     @PostMapping("/reissue")
     public ResponseEntity<AccessTokenResponse> reissue(
-            @RequestBody RefreshTokenRequest request
+            @Valid @RequestBody RefreshTokenRequest request
     ) {
         String accessToken =
                 authService.reissueAccessToken(request.getRefreshToken());
@@ -57,7 +58,7 @@ public class AuthController {
     //로그아웃
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(
-            @RequestBody LogoutRequest request
+            @Valid @RequestBody LogoutRequest request
     ) {
         authService.logout(request.getRefreshToken());
         return ResponseEntity.ok().build();

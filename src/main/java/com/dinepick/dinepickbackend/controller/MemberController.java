@@ -37,7 +37,7 @@ public class MemberController {
         return ResponseEntity.ok(memberService.findById(id));
     }
 
-    //회원 탈퇴 (본인)
+    //회원 탈퇴 (로그인한 사용자)
     @DeleteMapping("/me")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> withdraw() {
@@ -56,7 +56,7 @@ public class MemberController {
     //탈퇴 회원 목록 조회 (관리자 전용)
     @GetMapping("/withdrawn")
     @PreAuthorize("hasRole('ADMIN')")
-    public List<MemberResponse> findWithdrawnMembers() {
-        return memberService.findWithdrawnMembers();
+    public ResponseEntity<List<MemberResponse>> findWithdrawnMembers() {
+        return ResponseEntity.ok(memberService.findWithdrawnMembers());
     }
 }

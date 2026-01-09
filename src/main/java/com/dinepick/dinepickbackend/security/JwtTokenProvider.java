@@ -34,7 +34,7 @@ public class JwtTokenProvider {
     }
 
     public String createAccessToken(String email, Role role) {
-        return createToken(email, role, ACCESS_EXPIRE);
+        return createToken(email, role);
     }
 
     public String createRefreshToken(String email) {
@@ -53,12 +53,12 @@ public class JwtTokenProvider {
      * @param role  사용자 권한 (ROLE_USER, ROLE_ADMIN)
      * @return 생성된 JWT 토큰 문자열
      */
-    private String createToken(String email, Role role, long expireTime) {
+    private String createToken(String email, Role role) {
         return Jwts.builder()
                 .setSubject(email)
                 .claim("role", role.name())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expireTime))
+                .setExpiration(new Date(System.currentTimeMillis() + JwtTokenProvider.ACCESS_EXPIRE))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }

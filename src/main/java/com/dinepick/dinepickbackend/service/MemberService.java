@@ -50,11 +50,13 @@ public class MemberService {
 
     //회원 정보 업데이트
     @Transactional
-    public void updateMyInfo(MemberUpdateRequest request) {
+    public MemberResponse updateMyInfo(MemberUpdateRequest request) {
         Member member = getCurrentMember();
 
         // 1️⃣ 기본 정보 수정
-        member.updateName(request.getName());
+        if (request.getName() != null && !request.getName().isBlank()) {
+            member.updateName(request.getName());
+        }
 
         // 2️⃣ 비밀번호 변경 여부 판단
         boolean wantsPasswordChange =
@@ -113,6 +115,7 @@ public class MemberService {
                     passwordEncoder.encode(request.getNewPassword())
             );
         }
+        return MemberResponse.from(member);
     }
 
     //전체 회원 조회 (ADMIN)

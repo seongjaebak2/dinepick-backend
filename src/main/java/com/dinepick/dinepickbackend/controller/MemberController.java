@@ -31,8 +31,7 @@ public class MemberController {
     public ResponseEntity<MemberResponse> updateMyInfo(
             @Valid @RequestBody MemberUpdateRequest request
     ) {
-        memberService.updateMyInfo(request);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(memberService.updateMyInfo(request));
     }
 
     //회원 탈퇴 (로그인한 사용자)

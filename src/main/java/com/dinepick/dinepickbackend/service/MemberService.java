@@ -54,7 +54,7 @@ public class MemberService {
         refreshTokenRepository.deleteByMemberId(member.getId());
     }
 
-    //회원복구
+    //회원복구 (ADMIN)
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public void restoreMember(Long id) {
@@ -70,7 +70,7 @@ public class MemberService {
         member.restore();
     }
 
-    //탈퇴회원 조회
+    //탈퇴회원 조회 (ADMIN)
     @PreAuthorize("hasRole('ADMIN')")
     public List<MemberResponse> findWithdrawnMembers() {
 

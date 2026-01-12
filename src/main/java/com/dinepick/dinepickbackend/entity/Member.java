@@ -51,6 +51,19 @@ public class Member {
         this.deleted = false;
     }
 
+    //회원이름 변경
+    public void updateName(String name) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("이름은 비어 있을 수 없습니다.");
+        }
+        this.name = name;
+    }
+
+    //회원 비밀번호 변경
+    public void changePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
+
     //회원탈퇴
     public void withdraw() {
         if (this.deleted) {

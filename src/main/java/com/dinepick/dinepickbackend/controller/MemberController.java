@@ -1,7 +1,9 @@
 package com.dinepick.dinepickbackend.controller;
 
 import com.dinepick.dinepickbackend.dto.MemberResponse;
+import com.dinepick.dinepickbackend.dto.MemberUpdateRequest;
 import com.dinepick.dinepickbackend.service.MemberService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,6 +25,24 @@ public class MemberController {
         return ResponseEntity.ok(memberService.getMyInfo());
     }
 
+    // 회원정보 수정 (로그인한 사용자)
+    @PutMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<MemberResponse> updateMyInfo(
+            @Valid @RequestBody MemberUpdateRequest request
+    ) {
+        memberService.updateMyInfo(request);
+        return ResponseEntity.noContent().build();
+    }
+
+    //회원 탈퇴 (로그인한 사용자)
+    @DeleteMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> withdraw() {
+        memberService.withdraw();
+        return ResponseEntity.noContent().build(); // 204 반환
+    }
+
     //전체 회원 조회 (관리자 전용)
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -35,14 +55,6 @@ public class MemberController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MemberResponse> findById(@PathVariable Long id) {
         return ResponseEntity.ok(memberService.findById(id));
-    }
-
-    //회원 탈퇴 (로그인한 사용자)
-    @DeleteMapping("/me")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Void> withdraw() {
-        memberService.withdraw();
-        return ResponseEntity.noContent().build(); // 204 반환
     }
 
     //회원 복구 (관리자 전용)

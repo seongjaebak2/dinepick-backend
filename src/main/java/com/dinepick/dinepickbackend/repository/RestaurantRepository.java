@@ -49,7 +49,7 @@ where r.latitude IS NOT NULL
         sin(radians(:lat)) * sin(radians(r.latitude))
   )) <= :radius
   and (:category IS NULL OR r.category = :category)
-  and (:keyword IS NULL OR r.name LIKE %:keyword%)
+  and (:keyword IS NULL OR r.name LIKE CONCAT('%', :keyword, '%'))
 order by
   (6371.0 * acos(
         cos(radians(:lat)) * cos(radians(r.latitude)) *

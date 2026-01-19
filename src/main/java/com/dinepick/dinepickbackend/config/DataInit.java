@@ -129,11 +129,11 @@ public class DataInit implements CommandLineRunner {
 
         if (name.equals("송정3대국밥 서면점")) {
             restaurant.addImage(new RestaurantImage(
-                    "https://images.unsplash.com/photo-1604908177522-4324c5f1e7a6",
+                    "https://images.unsplash.com/photo-1645530656505-1b8a4057889b",
                     true
             ));
             restaurant.addImage(new RestaurantImage(
-                    "https://images.unsplash.com/photo-1626078297428-69a3bdfb1efb",
+                    "https://images.unsplash.com/photo-1645530656505-1b8a4057889b",
                     false
             ));
         }

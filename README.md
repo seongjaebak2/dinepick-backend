@@ -25,40 +25,34 @@ DinePick은 사용자가 레스토랑을 검색하고 예약할 수 있는 서�
 ### 인증 및 회원 관리
 - 회원가입 및 로그인
 - JWT 기반 인증 (Access Token + Refresh Token)
-- 회원 정보 조회 및 수정
-- 회원 탈퇴
+- 내 정보 조회 및 수정
+- 회원 탈퇴 및 관리자용 회원 복구
+- 관리자 전용 전체 회원/탈퇴 회원 목록 조회
 
 ### 레스토랑 관리
-- 레스토랑 목록 조회
+- 레스토랑 목록 조회 및 검색 (키워드, 카테고리)
 - 레스토랑 상세 정보 조회
-- 카테고리별 레스토랑 검색
-- 레스토랑 이미지 관리
+- **위치 기반 주변 레스토랑 검색 (거리순 정렬)**
 
 ### 예약 관리
+- **실시간 예약 가능 여부 확인**
 - 예약 생성
-- 예약 조회 (전체 목록 및 상세)
-- 예약 수정
-- 예약 취소
-- 내 예약 목록 조회
+- 내 예약 목록 조회 (회원용 별도 엔드포인트 제공)
+- 예약 상세 조회, 수정 및 취소
 
 ## 🏗 프로젝트 구조
 
 ```
 src/main/java/com/dinepick/dinepickbackend/
-├── config/              # 설정 파일 (Security, DataInit)
+├── config/              # 설정 파일 (Security, DataInit, Web)
 ├── controller/          # REST API 컨트롤러
-│   ├── AuthController
-│   ├── MemberController
-│   ├── MyPageController
-│   ├── ReservationController
-│   └── RestaurantController
+│   ├── AuthController        # 인증 (회원가입, 로그인 등)
+│   ├── MemberController      # 회원 관리 (내 정보, 관리자 기능)
+│   ├── MyPageController      # 마이페이지 (내 예약 목록)
+│   ├── ReservationController # 예약 서비스
+│   └── RestaurantController  # 레스토랑 서비스
 ├── dto/                 # 데이터 전송 객체
 ├── entity/              # JPA 엔티티
-│   ├── Member
-│   ├── Restaurant
-│   ├── Reservation
-│   ├── RefreshToken
-│   └── RestaurantImage
 ├── exception/           # 예외 처리
 ├── repository/          # JPA 리포지토리
 ├── security/            # JWT 및 보안 관련
@@ -69,9 +63,9 @@ src/main/java/com/dinepick/dinepickbackend/
 
 ### 사전 요구사항
 
-- Java 17 이상
+- Java 17
 - MySQL 8.0 이상
-- Gradle 7.0 이상
+- Gradle 8.5 이상
 
 ### 데이터베이스 설정
 
@@ -83,8 +77,8 @@ CREATE DATABASE restaurant_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 2. `src/main/resources/application.properties` 파일에서 데이터베이스 연결 정보 수정:
 ```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/restaurant_db?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-spring.datasource.username=root
-spring.datasource.password=1234
+spring.datasource.username=YOUR_USERNAME
+spring.datasource.password=YOUR_PASSWORD
 ```
 
 ### 애플리케이션 실행
@@ -103,13 +97,13 @@ spring.datasource.password=1234
 
 ## 🔑 환경 변수
 
-`application.properties`에서 다음 설정을 확인하세요:
+`application.properties` 또는 환경 변수로 설정 가능합니다:
 
 | 설정 | 설명 | 기본값 |
 |------|------|--------|
 | `server.port` | 서버 포트 | 8080 |
-| `jwt.secret` | JWT 시크릿 키 | dinepick-secret-key-dinepick-secret-key-dinepick-secret-key |
-| `spring.jpa.hibernate.ddl-auto` | DDL 자동 생성 모드 | create |
+| `jwt.secret` | JWT 시크릿 키 | (충분히 긴 비밀키 권장) |
+| `spring.jpa.hibernate.ddl-auto` | DDL 자동 생성 모드 | update |
 
 > ⚠️ **주의**: 프로덕션 환경에서는 `jwt.secret`을 반드시 변경하고, `spring.jpa.hibernate.ddl-auto`를 `validate` 또는 `none`으로 설정하세요.
 
@@ -122,23 +116,26 @@ spring.datasource.password=1234
 - `POST /api/auth/refresh` - Access Token 갱신
 
 ### 회원 (Member)
+- `GET /api/members/me` - 내 정보 조회
+- `PUT /api/members/me` - 내 정보 수정
+- `DELETE /api/members/me` - 회원 탈퇴
 - `GET /api/members` - 전체 회원 조회 (관리자)
-- `GET /api/members/{id}` - 특정 회원 조회
+- `GET /api/members/{id}` - 특정 회원 조회 (관리자)
+- `POST /api/members/{id}/restore` - 회원 복구 (관리자)
+- `GET /api/members/withdrawn` - 탈퇴 회원 목록 조회 (관리자)
 
 ### 마이페이지 (MyPage)
-- `GET /api/mypage` - 내 정보 조회
-- `PUT /api/mypage` - 내 정보 수정
-- `DELETE /api/mypage` - 회원 탈퇴
-- `GET /api/mypage/reservations` - 내 예약 목록 조회
+- `GET /api/me/reservations` - 내 예약 목록 조회
 
 ### 레스토랑 (Restaurant)
-- `GET /api/restaurants` - 레스토랑 목록 조회
+- `GET /api/restaurants` - 레스토랑 목록 조회 및 검색
 - `GET /api/restaurants/{id}` - 레스토랑 상세 조회
+- `GET /api/restaurants/nearby` - 주변 레스토랑 검색 (위치 기반)
 
 ### 예약 (Reservation)
+- `GET /api/reservations/availability` - 예약 가능 여부 확인
 - `POST /api/reservations` - 예약 생성
-- `GET /api/reservations` - 예약 목록 조회
-- `GET /api/reservations/{id}` - 예약 상세 조회
+- `GET /api/reservations/my` - 내 예약 목록 조회
 - `PUT /api/reservations/{id}` - 예약 수정
 - `DELETE /api/reservations/{id}` - 예약 취소
 

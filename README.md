@@ -8,7 +8,7 @@ DinePick은 사용자가 레스토랑을 검색하고 예약할 수 있는 서�
 
 ## 🛠 기술 스택
 
-- **Framework**: Spring Boot 4.0.1
+- **Framework**: Spring Boot
 - **Language**: Java 17
 - **Build Tool**: Gradle
 - **Database**: MySQL

@@ -15,12 +15,11 @@ import org.springframework.stereotype.Service;
 public class RestaurantService {
     private final RestaurantRepository restaurantRepository;
 
-    //    레스토랑 목록 + 검색 + 페이징 + 카테고리 검색
+    // 레스토랑 목록 + 검색 + 페이징 + 카테고리 검색
     public Page<RestaurantResponse> findRestaurants(
             String keyword,
             Category category,
-            Pageable pageable
-    ) {
+            Pageable pageable) {
         Page<Restaurant> page;
 
         if ((keyword == null || keyword.isBlank()) && category == null) {
@@ -35,27 +34,25 @@ public class RestaurantService {
         return page.map(RestaurantResponse::from);
     }
 
-    //    레스토랑 상세
+    // 레스토랑 상세
     public Restaurant findEntityById(Long restaurantId) {
         return restaurantRepository.findById(restaurantId)
                 .orElseThrow(() -> new RestaurantNotFoundException(restaurantId));
     }
 
-    //  위치 기반 검색
+    // 위치 기반 검색
     public Page<RestaurantResponse> findNearby(
             double lat,
             double lng,
             double radius,
             String keyword,
             Category category,
-            Pageable pageable
-    ) {
+            Pageable pageable) {
         if (keyword != null && keyword.isBlank()) {
             keyword = null;
         }
 
         return restaurantRepository
-                .findNearbyWithDistance(lat, lng, radius, keyword, category, pageable)
-                ;
+                .findNearbyWithDistance(lat, lng, radius, keyword, category, pageable);
     }
 }

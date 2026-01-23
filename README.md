@@ -2,13 +2,13 @@
 
 레스토랑 예약 시스템 DinePick의 백엔드 API 서버입니다.
 
-## 📋 프로젝트 개요
+##  프로젝트 개요
 
 DinePick은 사용자가 레스토랑을 검색하고 예약할 수 있는 서비스입니다. 이 프로젝트는 Spring Boot 기반의 RESTful API를 제공합니다.
 
-## 🛠 기술 스택
+##  기술 스택
 
-- **Framework**: Spring Boot 4.0.1
+- **Framework**: Spring Boot
 - **Language**: Java 17
 - **Build Tool**: Gradle
 - **Database**: MySQL
@@ -20,7 +20,7 @@ DinePick은 사용자가 레스토랑을 검색하고 예약할 수 있는 서�
   - JJWT (JWT 라이브러리)
   - Spring Validation
 
-## 📦 주요 기능
+##  주요 기능
 
 ### 인증 및 회원 관리
 - 회원가입 및 로그인
@@ -40,7 +40,7 @@ DinePick은 사용자가 레스토랑을 검색하고 예약할 수 있는 서�
 - 내 예약 목록 조회 (회원용 별도 엔드포인트 제공)
 - 예약 상세 조회, 수정 및 취소
 
-## 🏗 프로젝트 구조
+##  프로젝트 구조
 
 ```
 src/main/java/com/dinepick/dinepickbackend/
@@ -59,7 +59,7 @@ src/main/java/com/dinepick/dinepickbackend/
 └── service/             # 비즈니스 로직
 ```
 
-## 🚀 시작하기
+##  시작하기
 
 ### 사전 요구사항
 
@@ -95,7 +95,7 @@ spring.datasource.password=YOUR_PASSWORD
 
 애플리케이션은 기본적으로 `http://localhost:8080`에서 실행됩니다.
 
-## 🔑 환경 변수
+##  환경 변수
 
 `application.properties` 또는 환경 변수로 설정 가능합니다:
 
@@ -105,9 +105,9 @@ spring.datasource.password=YOUR_PASSWORD
 | `jwt.secret` | JWT 시크릿 키 | (충분히 긴 비밀키 권장) |
 | `spring.jpa.hibernate.ddl-auto` | DDL 자동 생성 모드 | update |
 
-> ⚠️ **주의**: 프로덕션 환경에서는 `jwt.secret`을 반드시 변경하고, `spring.jpa.hibernate.ddl-auto`를 `validate` 또는 `none`으로 설정하세요.
+>  **주의**: 프로덕션 환경에서는 `jwt.secret`을 반드시 변경하고, `spring.jpa.hibernate.ddl-auto`를 `validate` 또는 `none`으로 설정하세요.
 
-## 📡 API 엔드포인트
+##  API 엔드포인트
 
 ### 인증 (Auth)
 - `POST /api/auth/signup` - 회원가입
@@ -139,13 +139,13 @@ spring.datasource.password=YOUR_PASSWORD
 - `PUT /api/reservations/{id}` - 예약 수정
 - `DELETE /api/reservations/{id}` - 예약 취소
 
-## 🧪 테스트
+##  테스트
 
 ```bash
 ./gradlew test
 ```
 
-## 📝 개발 참고사항
+##  개발 참고사항
 
 ### JWT 인증 흐름
 1. 사용자가 로그인하면 Access Token과 Refresh Token을 발급받습니다.
@@ -159,7 +159,7 @@ spring.datasource.password=YOUR_PASSWORD
 ### 데이터 초기화
 - `DataInit` 클래스에서 애플리케이션 시작 시 초기 데이터를 생성합니다.
 
-## 🤝 기여
+##  기여
 
 1. Fork the Project
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
@@ -167,10 +167,10 @@ spring.datasource.password=YOUR_PASSWORD
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📄 라이선스
+##  라이선스
 
 이 프로젝트는 팀 프로젝트입니다.
 
-## 📧 연락처
+##  연락처
 
 프로젝트 관련 문의사항이 있으시면 이슈를 등록해주세요.

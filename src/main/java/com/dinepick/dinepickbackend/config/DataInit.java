@@ -63,8 +63,8 @@ public class DataInit implements CommandLineRunner {
         );
 
         saveRestaurantIfNotExists(
-                "부산 부산진구 중앙대로 702",
                 "개미집 서면점",
+                "부산 부산진구 중앙대로 702",
                 35.1578,
                 129.0599,
                 "낙곱새 원조 맛집",

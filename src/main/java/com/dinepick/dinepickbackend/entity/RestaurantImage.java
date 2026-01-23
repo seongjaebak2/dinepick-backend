@@ -23,7 +23,8 @@ public class RestaurantImage {
     @Column(nullable = false)
     private boolean isThumbnail;
 
-    public RestaurantImage(String imageUrl, boolean isThumbnail) {
+    public RestaurantImage(Restaurant restaurant, String imageUrl, boolean isThumbnail) {
+        this.restaurant = restaurant;
         this.imageUrl = imageUrl;
         this.isThumbnail = isThumbnail;
     }

@@ -63,8 +63,8 @@ public class DataInit implements CommandLineRunner {
         );
 
         saveRestaurantIfNotExists(
-                "개미집 서면점",
                 "부산 부산진구 중앙대로 702",
+                "개미집 서면점",
                 35.1578,
                 129.0599,
                 "낙곱새 원조 맛집",
@@ -118,10 +118,12 @@ public class DataInit implements CommandLineRunner {
         // ===== 이미지 샘플 =====
         if (name.equals("톤쇼우 서면점")) {
             restaurant.addImage(new RestaurantImage(
+                    restaurant,
                     "https://images.unsplash.com/photo-1604909052743-94e838986d24",
                     true
             ));
             restaurant.addImage(new RestaurantImage(
+                    restaurant,
                     "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe",
                     false
             ));
@@ -129,10 +131,12 @@ public class DataInit implements CommandLineRunner {
 
         if (name.equals("송정3대국밥 서면점")) {
             restaurant.addImage(new RestaurantImage(
+                    restaurant,
                     "https://images.unsplash.com/photo-1604908177522-4324c5f1e7a6",
                     true
             ));
             restaurant.addImage(new RestaurantImage(
+                    restaurant,
                     "https://images.unsplash.com/photo-1626078297428-69a3bdfb1efb",
                     false
             ));
@@ -140,10 +144,12 @@ public class DataInit implements CommandLineRunner {
 
         if (name.equals("개미집 서면점")) {
             restaurant.addImage(new RestaurantImage(
+                    restaurant,
                     "https://images.unsplash.com/photo-1600891964599-f61ba0e24092",
                     true
             ));
             restaurant.addImage(new RestaurantImage(
+                    restaurant,
                     "https://images.unsplash.com/photo-1553621042-f6e147245754",
                     false
             ));
@@ -151,10 +157,12 @@ public class DataInit implements CommandLineRunner {
 
         if (name.equals("버거샵 서면")) {
             restaurant.addImage(new RestaurantImage(
+                    restaurant,
                     "https://images.unsplash.com/photo-1550547660-d9450f859349",
                     true
             ));
             restaurant.addImage(new RestaurantImage(
+                    restaurant,
                     "https://images.unsplash.com/photo-1568901346375-23c9450c58cd",
                     false
             ));
@@ -162,10 +170,12 @@ public class DataInit implements CommandLineRunner {
 
         if (name.equals("카페 이드")) {
             restaurant.addImage(new RestaurantImage(
+                    restaurant,
                     "https://images.unsplash.com/photo-1509042239860-f550ce710b93",
                     true
             ));
             restaurant.addImage(new RestaurantImage(
+                    restaurant,
                     "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085",
                     false
             ));
